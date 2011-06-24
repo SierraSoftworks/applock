@@ -25,6 +25,7 @@ public:
     QList<QString> GetAppNames();
     QVariant GetSetting(QString setting, QVariant defaultValue = QVariant(QString()));
     void SetSetting(QString setting, QVariant value);
+    void ClearApps();
 
 };
 

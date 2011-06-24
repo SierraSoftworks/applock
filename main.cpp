@@ -15,9 +15,20 @@ void PrintHelp()
     qDebug() << "  --add	[DESKTOP FILE]";
     qDebug() <<	"	Adds the specified desktop file's application to the";
     qDebug() <<	"	list of locked applications";
+    qDebug() << "  --remove	[DESKTOP FILE]";
+    qDebug() << "	Removes the specified desktop file's application from";
+    qDebug() << "	the list of locked applications";
     qDebug() << "  --show-apps";
     qDebug() << "	Shows the list of locked executables";
-
+    qDebug() << "  --clear-apps";
+    qDebug() << "	Clears the database's list of locked applications";
+    qDebug() << "  --status";
+    qDebug() <<	"	Shows the current status of the daemon";
+    qDebug() << "";
+    qDebug() << "[DESKTOP FILE]";
+    qDebug() << "   Can either be the absolute path to a desktop file or the";
+    qDebug() << "   name of the desktop file (without the .desktop extension)";
+    qDebug() << "";
     qDebug() << "  --help -?";
     qDebug() << "	Shows this help page";
 }
@@ -40,7 +51,7 @@ int main(int argc, char *argv[])
 	    if(i == argc - 1)
 	    {
 		qWarning("You must provide the path to the Desktop file");
-		exit(1);
+		return 1;
 	    }
 
 	    qDebug() << "Adding" << argv[i + 1] << "to the list of locked applications";
@@ -48,11 +59,11 @@ int main(int argc, char *argv[])
 	    QFileInfo file(argv[i + 1]);
 	    if(!file.isFile())
 	    {
-		file.setFile("/usr/share/applications/hildon/" + QString(argv[i + 1]));
+		file.setFile("/usr/share/applications/hildon/" + QString(argv[i + 1]) + ".desktop");
 		if(!file.isFile())
 		{
 		    qDebug() << "You have not specified a valid file";
-		    exit(1);
+		    return 1;
 		}
 	    }
 
@@ -60,7 +71,7 @@ int main(int argc, char *argv[])
 	    if(!appDescriptor.Load(argv[i + 1]))
 	    {
 		qDebug() << "Failed to open Desktop file";
-		exit(1);
+		return 1;
 	    }
 	    qDebug() << "Name:" << appDescriptor.getAppName();
 	    qDebug() << "Executable:" << appDescriptor.getAppPath();
@@ -72,14 +83,14 @@ int main(int argc, char *argv[])
 	    settings.AddApp(appDescriptor);
 
 	    qDebug() << "Added to list of locked apps";
-	    exit(0);
+	    return 0;
 	}
 	else if(arg == "--remove")
 	{
 	    if(i == argc - 1)
 	    {
 		qWarning("You must provide the path to the Desktop file");
-		exit(1);
+		return 1;
 	    }
 
 	    qDebug() << "Removing" << argv[i + 1] << "from the list of locked applications";
@@ -87,11 +98,11 @@ int main(int argc, char *argv[])
 	    QFileInfo file(argv[i + 1]);
 	    if(!file.isFile())
 	    {
-		file.setFile("/usr/share/applications/hildon/" + QString(argv[i + 1]));
+		file.setFile("/usr/share/applications/hildon/" + QString(argv[i + 1]) + ".desktop");
 		if(!file.isFile())
 		{
 		    qDebug() << "You have not specified a valid file";
-		    exit(1);
+		    return 1;
 		}
 	    }
 
@@ -99,7 +110,7 @@ int main(int argc, char *argv[])
 	    if(!appDescriptor.Load(argv[i + 1]))
 	    {
 		qDebug() << "Failed to open Desktop file";
-		exit(1);
+		return 1;
 	    }
 	    qDebug() << "Name:" << appDescriptor.getAppName();
 	    qDebug() << "Executable:" << appDescriptor.getAppPath();
@@ -111,7 +122,7 @@ int main(int argc, char *argv[])
 	    settings.RemoveApp(appDescriptor);
 
 	    qDebug() << "Removed from list of locked apps";
-	    exit(0);
+	    return 0;
 	}
 	else if(arg == "--show-apps")
 	{
@@ -127,12 +138,12 @@ int main(int argc, char *argv[])
 		    qDebug() << app->getAppName() << "-" << app->getAppPath();
 		delete app;
 	    }
-	    exit(0);
+	    return 0;
 	}
 	else if (arg == "--help" || arg == "-?")
 	{
 	    PrintHelp();
-	    exit(0);
+	    return 0;
 	}
 	else if(arg == "-ui")
 	{
@@ -170,7 +181,42 @@ int main(int argc, char *argv[])
 	    }
 	    return app.exec();
 	}
+	else if(arg == "--clear-apps")
+	{
+	    Settings settings;
+
+	    settings.ClearApps();
+
+	    return 0;
+	}
+	else if(arg == "--status")
+	{
+	    QDBusInterface dbus(
+			"com.sierrasoftworks.AppLock",
+			"/com/sierrasoftworks/AppLock",
+			"com.sierrasoftworks.AppLock.Daemon");
+
+
+	    if(!dbus.isValid())
+	    {
+		qDebug() << "Not Running";
+		return 1;
+	    }
+
+	    QDBusReply<QString> reply = dbus.call("GetStatus");
+
+	    if(!reply.isValid())
+	    {
+		qDebug() << "Not Responding";
+		return 1;
+	    }
+
+	    qDebug() << reply.value();
+	    return 0;
+	}
     }
+
+    PrintHelp();
 
 
 

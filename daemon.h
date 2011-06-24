@@ -25,10 +25,10 @@ public slots:
     void PrintMonitorList();
     void PrintStatus();
     QList<QString> GetMonitoredApplicationNames();
+    QString GetStatus();
 
 signals:
     void LockedAppLaunched(QString app);
-    void LockedAppClosed(QString app);
     void PhoneLocked();
 };
 

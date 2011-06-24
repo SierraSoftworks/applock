@@ -46,6 +46,11 @@ Settings::~Settings()
 
 
 
+void Settings::ClearApps()
+{
+    dbConnection.exec("DELETE FROM `apps");
+}
+
 void Settings::AddApp(ApplicationDescription app)
 {
     dbConnection.exec(

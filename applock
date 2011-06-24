@@ -11,7 +11,7 @@ respawn limit 10 10
 
 script
     if [ -d "/opt/applock" ]; then
-		exec applock -d
+		exec /opt/applock/AppLock -d
 		sleep 1
     else
 	sleep 5

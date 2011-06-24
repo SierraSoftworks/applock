@@ -1,6 +1,135 @@
-AppLock - An Application Locking daemon for Maemo
-----------------------------
+###############################################################################
+				AppLock
+		    An Application Locking daemon for Maemo
+###############################################################################
 
-Comments regarding the Package
+		     Powered by Sierra Softworks Technology
 
- -- Benjamin Pannell <contact@sierrasoftworks.com>  Mon, 20 Jun 2011 11:25:40 +0200
+###############################################################################
+
+What is AppLock?
+AppLock is a daemon based application locking tool for Maemo. It runs in the
+background and whenever a locked application is launched it will procede to
+lock the phone.
+
+What does AppLock do?
+AppLock listens to DBus events, using them to determine when an application has
+been launched, and if it should be locked. If a blacklisted application is detected
+AppLock will put the phone into a locked state. This is the same locked state
+that is entered if you select Secure Device from the power menu. The advantage
+of this method is that changing your device's lock code (from Settings/Device Lock)
+will automatically update the code used to unlock the device when AppLock locks it.
+
+What are the risks?
+The only real risk with using AppLock is if you forget your device's unlock code.
+In this case, launching any application will put the device into a locked state
+which can only be exited by entering the correct unlock code. It is recommeded
+that you DO NOT FORGET YOUR UNLOCK CODE.
+
+What are the limitations of AppLock?
+Unfortunately, due to the way in which AppLock detects the launch of applications,
+it is impossible to detect the launch of scripts or applications which do not make
+use of any DBus calls. Frameworks such as Qt and GTK generally make use of these
+calls automatically on Maemo and as such most of these applications will be detected
+however there are a small number which slip through.
+Additionally, applications MUST have a .desktop file in order for AppLock to be
+able to lock them, this may be worked around in a later version however.
+
+What applications can AppLock detect?
+AppLock can detect any binary executable application that makes use of a DBus call
+or any application that makes use of the X-Osso-Service property in a desktop file.
+I plan to add support for detecting applications based on their command lines,
+this should allow python scripts and possibly even bash scripts to be detected however
+this is not guaranteed.
+
+###############################################################################
+			      Command Line Usage:
+###############################################################################
+applock [OPTIONS]
+
+Options:
+    --show-apps
+	Shows a list of all the monitored applications
+    --add	[DESKTOP FILE]
+	Adds the specified desktop file to the list of blacklisted applications
+    --remove	[DESKTOP FILE]
+	Removes the specified desktop file from the blacklist
+    --clear-apps
+	Clears the list of monitored applications
+    --status
+	Shows the current status of the AppLock daemon
+    --help -?
+	Shows the quick reference help file in the current terminal
+
+    DESKTOP FILE:
+	This can be the absolute path to a desktop file or the name of the
+	desktop file in /usr/share/applications/hildon
+	If it is in the form of a name it should NOT be followed by the
+	.desktop file extension.
+
+	Example:
+	    * /usr/share/applications/hildon/AppLock.desktop
+	    * AppLock
+	    Are the same
+
+Additional Launch Options:
+
+    -d
+	Launches AppLock in daemon mode, should only be used for debugging
+    -ui
+	Launches the AppLock UI
+
+###############################################################################
+				DBus Control:
+###############################################################################
+The AppLock daemon provides a limited set of DBus methods for controlling it.
+The following are available through the com.sierrasoftworks.AppLock service.
+
+Interface: com.sierrasoftworks.AppLock.Daemon
+Methods:
+    GetStatus out:String
+	Gets the current status of the daemon
+	(always returns "Running - Phone <Locked|Unlocked>")
+    PrintMonitorList
+	Prints the list of currently monitored applications to the terminal
+	This ONLY works if "applock -d" has been run from a terminal.
+    PrintStatus
+	Prints the status of the daemon to the terminal
+	This ONLY works if "applock -d" has been run from a terminal.
+Signals:
+    LockedAppLaunched out:String
+	Emitted whenever a locked application is launched, prior to the phone
+	being locked. The parameter is the name of the application that locked
+	the phone.
+    PhoneLocked
+	Emitted whenever AppLock locks the phone
+
+###############################################################################
+				  Debugging
+###############################################################################
+To help debug AppLock you can run the daemon from within a terminal. However it
+is recommended you disable the current daemon before doing so.
+In order to disable the current daemon, execute (from the terminal)
+    initctl emit AppLockStopDaemon
+
+When you are finished your debugging session you can restart the original daemon
+by running the following from the terminal
+    initctl emit AppLockStartDaemon
+
+While running the daemon from a terminal session you can send the following DBus
+calls to it to retrieve a response:
+
+dbus-send --dest=com.sierrasoftworks.AppLock /com/sierrasoftworks/AppLock
+    com.sierrasoftworks.AppLock.Daemon.PrintStatus
+
+dbus-send --dest=com.sierrasoftworks.AppLock /com/sierrasoftworks/AppLock
+    com.sierrasoftworks.AppLock.Daemon.PrintMonitorList
+
+You can also listen to the follwing DBus signals, whether or not the daemon is
+running in terminal mode.
+
+dbus-monitor "type='method_call',sender='com.sierrasoftworks.AppLock.Daemon'"
+
+###############################################################################
+
+ -- Benjamin Pannell <contact@sierrasoftworks.com>  Fri, 24 Jun 2011 20:25:40 +0200

@@ -66,3 +66,8 @@ QList<QString> Daemon::GetMonitoredApplicationNames()
 {
     return settings->GetAppNames();
 }
+
+QString Daemon::GetStatus()
+{
+    return QString("Running - Phone ") + (PhoneControl::IsLocked() ? "Locked" : "Unlocked");
+}

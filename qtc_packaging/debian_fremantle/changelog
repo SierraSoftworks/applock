@@ -1,7 +1,18 @@
+applock (0.2.1) unstable; urgency=low
+
+  * Help is now displayed correctly if no arguments are given to the applock executable
+  * Added --clear-apps to allow quick clearing of database
+  * Added --status to allow checking on the status of the daemon
+  * Fixed some small problems in postinst and daemon scripts
+  * Made daemon script link directly to executable rather than making use of symlink
+  * Populated README file
+
+ -- Benjamin Pannell <contact@sierrasoftworks.com>  Fri, 24 Jun 2011 20:03:30 +0200
+
 applock (0.2.0) unstable; urgency=low
 
   * Initial release.
   * Meets Milestone 1 development goals
   * Meets Milestone 2 development goals
-
- -- Benjamin Pannell <contact@sierrasoftworks.com>  Fri, 24 Jun 2011 11:50:49 +0200
+  
+ -- Benjamin Pannell <contact@sierrasoftworks.com>  Fri, 24 Jun 2011 19:01:13 +0200
