@@ -1,6 +1,7 @@
 #include "notifications.h"
 
-static QDBusInterface bannerInterface("org.freedesktop.Notifications", "/org/freedesktop/Notifications",QString(),QDBusConnection::systemBus());
+static QDBusInterface bannerInterface("org.freedesktop.Notifications", "/org/freedesktop/Notifications",
+				      "org.freedesktop.Notifications",QDBusConnection::systemBus());
 
 void Notifications::ShowBanner(QString message)
 {

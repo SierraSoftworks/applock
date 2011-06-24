@@ -5,6 +5,6 @@ if [ ! -h /usr/bin/applock ]
 then ln -s /opt/applock/AppLock /usr/bin/applock
 fi
 echo "Post Install complete"
-#echo "Starting daemon"
-#initctl emit AppLockStartDaemon
-#echo "Daemon Started"
+echo "Starting daemon"
+initctl emit AppLockStartDaemon
+echo "Daemon Started"

@@ -22,9 +22,9 @@ private slots:
     void OnAppLaunched(QString app);
 
 public slots:
-    void RefreshLockedApps();
     void PrintMonitorList();
     void PrintStatus();
+    QList<QString> GetMonitoredApplicationNames();
 
 signals:
     void LockedAppLaunched(QString app);

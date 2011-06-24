@@ -6,6 +6,7 @@
 
 #include "applicationdescription.h"
 #include "dbusmonitor.h"
+#include "settings.h"
 
 class LaunchMonitor : public QThread
 {
@@ -14,9 +15,7 @@ class LaunchMonitor : public QThread
 public:
     LaunchMonitor();
     virtual ~LaunchMonitor();
-    void AddMonitoredApp(ApplicationDescription *app);
-    void RemoveMonitoredApp(ApplicationDescription *app);
-    void SetMonitoredApps(QList<ApplicationDescription*> apps);
+    void SetSettings(Settings* settings);
     bool IsMonitoredApp(QString app);
     bool IsMonitoredDBus(QString dbus);
     QString GetDBusAppName(QString interface);

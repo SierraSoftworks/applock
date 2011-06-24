@@ -2,7 +2,8 @@
 
 bool firstRun = true;
 QStringList runningApps;
-QList<ApplicationDescription*> monitoredApps;
+
+Settings * thisSettings;
 
 DBusMonitor *monitor;
 QDBusInterface *freedesktopInterface;
@@ -48,50 +49,33 @@ QString LaunchMonitor::GetAppPath(QString dbusName)
 
 ApplicationDescription* LaunchMonitor::GetMonitoredApp(QString appPath)
 {
-    for(int i = 0; i < monitoredApps.count(); i++)
-	if(monitoredApps[i]->getAppPath() == appPath)
-	    return monitoredApps[i];
-    return 0;
+    return thisSettings->GetAppFromPath(appPath);
 }
 
-void LaunchMonitor::AddMonitoredApp(ApplicationDescription *app)
+void LaunchMonitor::SetSettings(Settings *settings)
 {
-    if(!IsMonitoredApp(app->getAppPath()))
-	monitoredApps << app;
-}
-
-void LaunchMonitor::RemoveMonitoredApp(ApplicationDescription *app)
-{
-    monitoredApps.removeAll(app);
-}
-
-void LaunchMonitor::SetMonitoredApps(QList<ApplicationDescription*> apps)
-{
-    monitoredApps = apps;
+    thisSettings = settings;
 }
 
 bool LaunchMonitor::IsMonitoredApp(QString app)
 {
-    for(int i = 0; i < monitoredApps.count(); i++)
-	if(!monitoredApps[i]->IsDBusService() && monitoredApps[i]->getAppPath() == app)
-	    return true;
-    return false;
+    ApplicationDescription *appDes = thisSettings->GetAppFromPath(app);
+    if(appDes->isNull())
+	return false;
+    return !appDes->IsDBusService();
 }
 
 bool LaunchMonitor::IsMonitoredDBus(QString interface)
 {
-    for(int i = 0; i < monitoredApps.count(); i++)
-	if(monitoredApps[i]->IsDBusService() && monitoredApps[i]->getAppDBus() == interface)
-	    return true;
-    return false;
+    ApplicationDescription *appDes = thisSettings->GetAppFromDBus(interface);
+    if(appDes->isNull())
+	return false;
+    return appDes->IsDBusService();
 }
 
 QString LaunchMonitor::GetDBusAppName(QString interface)
 {
-    for(int i = 0; i < monitoredApps.count(); i++)
-	if(monitoredApps[i]->IsDBusService() && monitoredApps[i]->getAppDBus() == interface)
-	    return monitoredApps[i]->getAppName();
-    return interface;
+    return thisSettings->GetAppNameDBus(interface);
 }
 
 void LaunchMonitor::ProcessRunningApps()
@@ -114,6 +98,7 @@ void LaunchMonitor::ProcessRunningApps()
 	    newRunningApps << appEXE;
     }
 
+    /*
     if(!firstRun)
 	for(int i = 0; i < monitoredApps.count(); i++)
 	{
@@ -124,6 +109,7 @@ void LaunchMonitor::ProcessRunningApps()
 		emit ApplicationClosed(monitored->getAppName());
 	}
 
+	//*/
     runningApps = newRunningApps;
     firstRun = false;
 }
@@ -152,12 +138,11 @@ void LaunchMonitor::OnDBusLinked(QString name, QString oldName, QString newName)
 	//qDebug() << "DBLL - New App Launched";
 	//New app launched
 	QString appPath = GetAppPath(newName);
-	qDebug() << "New App Path:" << appPath;
+	//qDebug() << "New App Path:" << appPath;
 	if(IsMonitoredApp(appPath))
 	{
-	    ApplicationDescription *monitoredApp = GetMonitoredApp(appPath);
-	    //emit ApplicationLaunched(monitoredApp->getAppName());
-	    qDebug() << "DBus Detected an app launch:" << monitoredApp->getAppName();
+	    emit ApplicationLaunched(thisSettings->GetAppNamePath(appPath));
+	    //qDebug() << "DBus Detected an app launch:" << monitoredApp->getAppName();
 	}
 
 	//ProcessRunningApps();
@@ -171,33 +156,38 @@ void LaunchMonitor::OnDBusLinked(QString name, QString oldName, QString newName)
 
 void LaunchMonitor::PrintMonitoredApps()
 {
-    for(int i = 0; i < monitoredApps.count();i++)
+    QList<QString> lockedApps = thisSettings->GetAppNames();
+    for(int i = 0; i < lockedApps.count(); i++)
     {
-	if(monitoredApps[i]->IsDBusService())
-	   continue;
-
-	qDebug() << "  " << monitoredApps[i]->getAppName() << ":" << monitoredApps[i]->getAppPath();
+	ApplicationDescription *app = thisSettings->GetAppFromName(lockedApps[i]);
+	if(!app->IsDBusService())
+	    qDebug() << app->getAppName() << "-" << app->getAppPath();
+	delete app;
     }
 }
 
 void LaunchMonitor::PrintMonitoredDBus()
 {
-    for(int i = 0; i < monitoredApps.count();i++)
+    QList<QString> lockedApps = thisSettings->GetAppNames();
+    for(int i = 0; i < lockedApps.count(); i++)
     {
-	if(!monitoredApps[i]->IsDBusService())
-	   continue;
-
-	qDebug() << "  " << monitoredApps[i]->getAppName() << ":" << monitoredApps[i]->getAppDBus();
+	ApplicationDescription *app = thisSettings->GetAppFromName(lockedApps[i]);
+	if(app->IsDBusService())
+	    qDebug() << app->getAppName() << "-" << app->getAppDBus();
+	delete app;
     }
 }
 
 void LaunchMonitor::PrintMonitors()
 {
-    for(int i = 0; i < monitoredApps.count();i++)
+    QList<QString> lockedApps = thisSettings->GetAppNames();
+    for(int i = 0; i < lockedApps.count(); i++)
     {
-	if(monitoredApps[i]->IsDBusService())
-	    qDebug() << "  " << monitoredApps[i]->getAppName() << ":" << monitoredApps[i]->getAppDBus();
+	ApplicationDescription *app = thisSettings->GetAppFromName(lockedApps[i]);
+	if(app->IsDBusService())
+	    qDebug() << app->getAppName() << "-" << app->getAppDBus();
 	else
-	    qDebug() << "  " << monitoredApps[i]->getAppName() << ":" << monitoredApps[i]->getAppPath();
+	    qDebug() << app->getAppName() << "-" << app->getAppPath();
+	delete app;
     }
 }

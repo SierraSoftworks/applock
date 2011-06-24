@@ -4,6 +4,7 @@ author "Benjamin Pannell <contact@sierrasoftworks.com>"
 start on XSESSIONS_STARTING
 start on AppLockStartDaemon
 stop on shutdown
+stop on AppLockStopDaemon
 
 respawn
 respawn limit 10 10

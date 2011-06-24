@@ -3,13 +3,12 @@
 
 #include <QtCore>
 
-class ApplicationDescription : public QObject
+class ApplicationDescription
 {
-    Q_OBJECT
-
 public:
     ApplicationDescription();
     ApplicationDescription(QString desktopFile);
+    ApplicationDescription(QString name, QString path, QString icon, QString dbus, QString desktopFile);
     virtual ~ApplicationDescription();
     bool Load(QString desktopFile);
     QString getAppName();
@@ -17,6 +16,7 @@ public:
     QString getAppPath();
     QString getAppDBus();
     QString getAppDesktopFile();
+    bool isNull();
     bool IsDBusService();
 
 };

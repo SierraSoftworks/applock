@@ -7,8 +7,11 @@ QString appDBus;
 QString appDesktopFile;
 QString appDBusFile;
 
+bool isnull;
+
 ApplicationDescription::ApplicationDescription()
 {
+    isnull = true;
 }
 
 ApplicationDescription::ApplicationDescription(QString desktopFile)
@@ -17,9 +20,24 @@ ApplicationDescription::ApplicationDescription(QString desktopFile)
     Load(desktopFile);
 }
 
+ApplicationDescription::ApplicationDescription(QString name, QString path, QString icon, QString dbus, QString desktopFile)
+{
+    appName = name;
+    appPath = path;
+    appIcon = icon;
+    appDBus = dbus;
+    appDesktopFile = desktopFile;
+    isnull = false;
+}
+
 ApplicationDescription::~ApplicationDescription()
 {
 
+}
+
+bool ApplicationDescription::isNull()
+{
+    return isnull;
 }
 
 QMap<QString,QString> LoadFileValues(QString file)
@@ -114,22 +132,27 @@ bool ApplicationDescription::Load(QString desktopFile)
 
     try
     {
-	QFileInfo exec(fileEntries["Exec"]);
+	QFileInfo exec(fileEntries["Exec"].split(" ")[0]);
 
 	QString execPath;
 	if(exec.isFile())
-	    execPath = (exec.isSymLink() ? exec.symLinkTarget() : exec.absolutePath());
+	    execPath = (exec.isSymLink() ? exec.symLinkTarget() : exec.absoluteFilePath());
 	else
 	{
-	    exec.setFile("/usr/bin/" + exec.fileName());
+	    exec.setFile("/usr/bin/" + fileEntries["Exec"].split(" ")[0]);
+	    qDebug() << "Checking" << exec.filePath();
 	    //Check if /usr/bin/<exec> is valid
 	    if(exec.isFile())
 	    {
-		execPath = (exec.isSymLink() ? exec.symLinkTarget() : exec.absolutePath());
+		execPath = (exec.isSymLink() ? exec.symLinkTarget() : exec.absoluteFilePath());
 	    }
-	    else if(exec.setFile("/bin/" + exec.fileName()), exec.isFile())
+	    else
 	    {
-		execPath = (exec.isSymLink() ? exec.symLinkTarget() : exec.absolutePath());
+		exec.setFile("/bin/" + fileEntries["Exec"].split(" ")[0]);
+		if(exec.isFile())
+		{
+		    execPath = (exec.isSymLink() ? exec.symLinkTarget() : exec.absoluteFilePath());
+		}
 	    }
 	}
 
@@ -154,6 +177,7 @@ bool ApplicationDescription::Load(QString desktopFile)
 	return false;
     }
 
+    isnull = false;
     return true;
 }
 

@@ -15,7 +15,7 @@ Daemon::Daemon()
     launchMonitor = new LaunchMonitor();
     connect(launchMonitor,SIGNAL(ApplicationLaunched(QString)), this, SLOT(OnAppLaunched(QString)));
     connect(launchMonitor,SIGNAL(ApplicationClosed(QString)), this, SIGNAL(LockedAppClosed(QString)));
-    launchMonitor->SetMonitoredApps(settings->GetLockedApps());
+    launchMonitor->SetSettings(settings);
 
     PrintMonitorList();
 
@@ -24,12 +24,6 @@ Daemon::Daemon()
 Daemon::~Daemon()
 {
 
-}
-
-void Daemon::RefreshLockedApps()
-{
-    qDebug() << "Refreshing list of locked applications";
-    launchMonitor->SetMonitoredApps(settings->GetLockedApps());
 }
 
 void Daemon::OnAppLaunched(QString app)
@@ -66,4 +60,9 @@ void Daemon::PrintStatus()
 {
     qDebug() << "Status: Running";
     qDebug() << "Phone Status:" << (PhoneControl::IsLocked() ? "Locked" : "Unlocked");
+}
+
+QList<QString> Daemon::GetMonitoredApplicationNames()
+{
+    return settings->GetAppNames();
 }

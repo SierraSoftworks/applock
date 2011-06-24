@@ -11,10 +11,18 @@ class Settings : public QObject
 
 public:
     Settings();
-    virtual ~Settings();
-    void SetLockedApps(QList<ApplicationDescription*> apps);
-    QList<ApplicationDescription*> GetLockedApps();
-    void AddApp(ApplicationDescription *app);
+    virtual ~Settings();    
+    void AddApp(ApplicationDescription app);
+    void RemoveApp(ApplicationDescription app);
+    bool IsMonitoredApp(QString path);
+    bool IsMonitoredDBus(QString dbus);
+    bool IsDBusMonitor(QString name);
+    QString GetAppNamePath(QString path);
+    QString GetAppNameDBus(QString dbus);
+    ApplicationDescription* GetAppFromPath(QString path);
+    ApplicationDescription* GetAppFromDBus(QString dbus);
+    ApplicationDescription* GetAppFromName(QString name);
+    QList<QString> GetAppNames();
     QVariant GetSetting(QString setting, QVariant defaultValue = QVariant(QString()));
     void SetSetting(QString setting, QVariant value);
 
