@@ -2,7 +2,7 @@
 #define DBUSMONITOR_H
 
 #include <QtCore>
-#include <dbus/dbus.h>
+#include "dbus/dbus.h"
 
 class DBusMonitor : public QThread
 {

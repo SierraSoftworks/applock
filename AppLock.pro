@@ -8,8 +8,8 @@ QT	+= sql
 QT	+= dbus
 
 CONFIG += link_pkgconfig
-
 PKGCONFIG += dbus-1
+#LIBS += -ldbus-1 -L../
 
 # If your application uses the Qt Mobility libraries, uncomment
 # the following lines and add the respective components to the 
