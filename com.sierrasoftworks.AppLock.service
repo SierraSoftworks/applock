@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.sierrasoftworks.AppLock
+Exec=/opt/applock/AppLock -d

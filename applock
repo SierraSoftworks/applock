@@ -1,0 +1,18 @@
+description "Runs the AppLock Daemon"
+author "Benjamin Pannell <contact@sierrasoftworks.com>"
+
+start on XSESSIONS_STARTING
+start on AppLockStartDaemon
+stop on shutdown
+
+respawn
+respawn limit 10 10
+
+script
+    if [ -d "/opt/applock" ]; then
+		exec applock -d
+		sleep 1
+    else
+	sleep 5
+    fi
+end script

@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+echo "Begining post install setup for AppLock"
+chmod +x /opt/applock/AppLock
+if [ ! -h /usr/bin/applock ]
+then ln -s /opt/applock/AppLock /usr/bin/applock
+fi
+echo "Post Install complete"
+#echo "Starting daemon"
+#initctl emit AppLockStartDaemon
+#echo "Daemon Started"
