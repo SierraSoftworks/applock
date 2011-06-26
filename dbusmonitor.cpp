@@ -11,48 +11,14 @@ DBusHandleMessageFunction filter_func;
 static DBusMonitor *instance;
 
 
-DBusMonitor::DBusMonitor(QStringList filters)
+DBusMonitor::DBusMonitor(QString bus)
 {
     instance = this;
 
-    filter_func = monitor_filter_func;
-
-    dbus_error_init (&error);
-
-    connection = dbus_bus_get (type, &error);
-
-    if (connection == NULL)
-    {
-	qDebug() << "Failed to open connection";
-	dbus_error_free (&error);
-
-    }
-
-    foreach(QString filter, filters)
-    {
-	char* filterData = filter.toLocal8Bit().data();
-	qDebug() << "Filter:" << filterData;
-
-	dbus_bus_add_match (connection, filterData, &error);
-
-	if (dbus_error_is_set (&error))
-	{
-	    qDebug() << "Failed to setup match filter";
-	    dbus_error_free (&error);
-	}
-    }
-
-    if (!dbus_connection_add_filter (connection, filter_func, NULL, NULL))
-    {
-	qDebug() << "Failed to add message filter";
-    }
-
-      qDebug() << "DBus Monitor Connected";
-}
-
-DBusMonitor::DBusMonitor()
-{
-    instance = this;
+    if(bus.contains("session", Qt::CaseInsensitive))
+	type = DBUS_BUS_SESSION;
+    else if(bus.contains("system", Qt::CaseInsensitive))
+	type = DBUS_BUS_SYSTEM;
 
     filter_func = monitor_filter_func;
 
@@ -74,6 +40,113 @@ DBusMonitor::DBusMonitor()
     {
 	qDebug() << "Failed to setup match filter";
 	dbus_error_free (&error);
+    }
+
+    if (!dbus_connection_add_filter (connection, filter_func, NULL, NULL))
+    {
+	qDebug() << "Failed to add message filter";
+    }
+
+      qDebug() << "DBus Monitor Connected";
+}
+
+DBusMonitor::DBusMonitor(int bus)
+{
+    instance = this;
+
+    if(bus == 1)
+	type = DBUS_BUS_SESSION;
+    else if(bus == 2)
+	type = DBUS_BUS_SYSTEM;
+
+    filter_func = monitor_filter_func;
+
+    dbus_error_init (&error);
+
+    connection = dbus_bus_get (type, &error);
+
+    if (connection == NULL)
+    {
+	qDebug() << "Failed to open connection";
+	dbus_error_free (&error);
+
+    }
+
+    qDebug() << "Using Default Filter: type=method_call, member=top_application";
+    dbus_bus_add_match (connection, "type='method_call',member='top_application'", &error);
+
+    if (dbus_error_is_set (&error))
+    {
+	qDebug() << "Failed to setup match filter";
+	dbus_error_free (&error);
+    }
+
+    if (!dbus_connection_add_filter (connection, filter_func, NULL, NULL))
+    {
+	qDebug() << "Failed to add message filter";
+    }
+
+      qDebug() << "DBus Monitor Connected";
+}
+
+DBusMonitor::DBusMonitor(int bus, QStringList filters)
+{
+    instance = this;
+
+    if(bus == 2)
+	type = DBUS_BUS_SYSTEM;
+
+
+    filter_func = monitor_filter_func;
+
+    dbus_error_init (&error);
+
+    connection = dbus_bus_get (type, &error);
+
+    if (connection == NULL)
+    {
+	qDebug() << "Failed to open connection";
+	dbus_error_free (&error);
+
+    }
+
+    foreach(QString filter, filters)
+    {
+	AddFilter(filter);
+    }
+
+    if (!dbus_connection_add_filter (connection, filter_func, NULL, NULL))
+    {
+	qDebug() << "Failed to add message filter";
+    }
+
+      qDebug() << "DBus Monitor Connected";
+}
+
+DBusMonitor::DBusMonitor(QString bus, QStringList filters)
+{
+    instance = this;
+
+    if(bus.contains("system", Qt::CaseInsensitive))
+	type = DBUS_BUS_SYSTEM;
+
+
+    filter_func = monitor_filter_func;
+
+    dbus_error_init (&error);
+
+    connection = dbus_bus_get (type, &error);
+
+    if (connection == NULL)
+    {
+	qDebug() << "Failed to open connection";
+	dbus_error_free (&error);
+
+    }
+
+    foreach(QString filter, filters)
+    {
+	AddFilter(filter);
     }
 
     if (!dbus_connection_add_filter (connection, filter_func, NULL, NULL))
@@ -194,7 +267,7 @@ bool shouldExit1 = false;
 void DBusMonitor::run()
 {
     qDebug() << "DBus Monitor Running";
-    while(!shouldExit1 && dbus_connection_read_write_dispatch(connection, -1));
+    while(!shouldExit1 && dbus_connection_read_write_dispatch(connection, 5000));
     qDebug() << "DBus Monitor Stopping";
 }
 
@@ -208,4 +281,23 @@ void DBusMonitor::Start()
 void DBusMonitor::Stop()
 {
     shouldExit1 = true;
+}
+
+bool DBusMonitor::AddFilter(QString filter)
+{
+    qDebug() << "  Adding Filter:" << filter;
+
+    char* data;
+    data = filter.toAscii().data();
+    qDebug() << "    DATA:" << data;
+
+    dbus_bus_add_match (connection, filter.toAscii().data(), &error);
+
+    if (dbus_error_is_set (&error))
+    {
+	qDebug() << "  Failed to setup match filter";
+	dbus_error_free (&error);
+	return false;
+    }
+    return true;
 }

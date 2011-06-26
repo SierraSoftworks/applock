@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+echo "Stopping AppLock Daemon"
+initctl emit AppLockStopDaemon

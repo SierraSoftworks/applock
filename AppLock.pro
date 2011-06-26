@@ -48,4 +48,5 @@ OTHER_FILES += \
     qtc_packaging/debian_fremantle/changelog \
     qtc_packaging/debian_fremantle/postinst \
     applock \
-    com.sierrasoftworks.AppLock.service
+    com.sierrasoftworks.AppLock.service \
+    qtc_packaging/debian_fremantle/preinst

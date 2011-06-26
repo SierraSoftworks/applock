@@ -20,12 +20,17 @@ public:
 
 private slots:
     void OnAppLaunched(QString app);
+    void OnSessionBusMethod(QString interface, QString method);
+    void OnSystemBusMethod(QString interface, QString method);
 
 public slots:
     void PrintMonitorList();
     void PrintStatus();
-    QList<QString> GetMonitoredApplicationNames();
     QString GetStatus();
+    bool AddSearch(QString name, QString bus, QString search);
+    bool AddApp(QString name, QString path);
+    bool RemoveSearch(QString name);
+    bool RemoveApp(QString name);
 
 signals:
     void LockedAppLaunched(QString app);

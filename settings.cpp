@@ -22,14 +22,10 @@ bool Connect()
 
 void CreateDB()
 {
-    dbConnection.exec("CREATE TABLE IF NOT EXISTS apps(name TEXT primary key, exec TEXT, icon TEXT, dbus TEXT, desktopFile TEXT)");
-    dbConnection.exec("CREATE TABLE IF NOT EXISTS settings(name TEXT primary key, value TEXT)");
+    dbConnection.exec("CREATE TABLE IF NOT EXISTS searches(name TEXT primary key, bus INT(1), search TEXT)");
+    dbConnection.exec("CREATE TABLE IF NOT EXISTS apps(name TEXT primary key, path TEXT)");
 }
 
-void ClearApps()
-{
-    dbConnection.exec("DELETE FROM `apps`");
-}
 
 
 
@@ -48,148 +44,87 @@ Settings::~Settings()
 
 void Settings::ClearApps()
 {
-    dbConnection.exec("DELETE FROM `apps");
+    dbConnection.exec("DELETE FROM `apps`");
 }
 
-void Settings::AddApp(ApplicationDescription app)
+void Settings::ClearSearches()
+{
+    dbConnection.exec("DELETE FROM `searches`");
+}
+
+void Settings::AddApp(QString name, QString path)
 {
     dbConnection.exec(
-		QString("INSERT INTO `apps` VALUES('%1','%2','%3','%4','%5')")
-		.replace("%1", app.getAppName().replace("'",""))
-		.replace("%2", app.getAppPath().replace("'",""))
-		.replace("%3", app.getAppIcon().replace("'",""))
-		.replace("%4", app.getAppDBus().replace("'",""))
-		.replace("%5", app.getAppDesktopFile().replace("'",""))
+		QString("INSERT INTO `apps` VALUES('%1','%2')")
+		.replace("%1", name.replace("'",""))
+		.replace("%2", path.replace("'",""))
 		);
 }
 
-void Settings::RemoveApp(ApplicationDescription app)
+void Settings::AddSearch(QString name, int bus, QString watch)
 {
-    dbConnection.exec(QString("DELETE FROM `apps` WHERE name='%1'")
-		      .replace("%1", app.getAppName().replace("'","")));
+    dbConnection.exec(
+		QString("INSERT INTO `searches` VALUES('%1','%2','%3')")
+		.replace("%1", name.replace("'",""))
+		.replace("%2", QString::number(bus))
+		.replace("%3",watch.replace("'","&APOS;"))
+		);
 }
 
-bool Settings::IsMonitoredApp(QString path)
+QStringList Settings::GetApps()
 {
-    QSqlQuery result = dbConnection.exec("SELECT COUNT(*) FROM `apps` WHERE exec='" + path.replace("'","") + "'");
+    QSqlQuery result = dbConnection.exec("SELECT path from `apps`");
+
+    QStringList apps;
     while(result.next())
-	return result.value(0).toInt() > 0;
-    return false;
+	apps << result.value(0).toString();
+
+    return apps;
+
 }
 
-bool Settings::IsMonitoredDBus(QString path)
+QStringList Settings::GetSearches(int bus)
 {
-    QSqlQuery result = dbConnection.exec("SELECT COUNT(*) FROM `apps` WHERE dbus='" + path.replace("'","") + "'");
+    QSqlQuery result = dbConnection.exec("SELECT search from `searches` WHERE `bus`='" + QString::number(bus) + "'");
+
+    QStringList apps;
     while(result.next())
-	return result.value(0).toInt() > 0;
-    return false;
+	apps << result.value(0).toString().replace("&APOS;","'");
+
+    return apps;
 }
 
-QString Settings::GetAppNamePath(QString path)
+void Settings::RemoveApp(QString name)
 {
-    QSqlQuery result = dbConnection.exec("SELECT name FROM `apps` WHERE exec='" + path.replace("'","") + "'");
+    dbConnection.exec("DELETE FROM `apps` WHERE `name`='" + name.replace("'","") + "'");
+}
+
+
+void Settings::RemoveSearch(QString name)
+{
+    dbConnection.exec("DELETE FROM `searches` WHERE `search`='" + name.replace("'","") + "'");
+}
+
+
+QStringList Settings::GetAppNames()
+{
+    QSqlQuery result = dbConnection.exec("SELECT name from `apps`");
+
+    QStringList apps;
     while(result.next())
-	return result.value(0).toString();
-    return QString();
+	apps << result.value(0).toString();
+
+    return apps;
+
 }
 
-QString Settings::GetAppNameDBus(QString path)
+QStringList Settings::GetSearchNames(int bus)
 {
-    QSqlQuery result = dbConnection.exec("SELECT name FROM `apps` WHERE dbus='" + path.replace("'","") + "'");
+    QSqlQuery result = dbConnection.exec("SELECT name from `searches` WHERE `bus`='" + QString::number(bus) + "'");
+
+    QStringList apps;
     while(result.next())
-	return result.value(0).toString();
-    return QString();
-}
+	apps << result.value(0).toString();
 
-
-ApplicationDescription* Settings::GetAppFromName(QString path)
-{
-    QSqlQuery result = dbConnection.exec("SELECT name, exec, icon, dbus, desktopFile FROM `apps` WHERE name='" + path.replace("'","") + "'");
-    while(result.next())
-    {
-	return new ApplicationDescription(
-		    result.value(0).toString(),
-		    result.value(1).toString(),
-		    result.value(2).toString(),
-		    result.value(3).toString(),
-		    result.value(4).toString()
-		    );
-    }
-    return new ApplicationDescription();
-}
-
-ApplicationDescription* Settings::GetAppFromPath(QString path)
-{
-    QSqlQuery result = dbConnection.exec("SELECT name, exec, icon, dbus, desktopFile FROM `apps` WHERE exec='" + path.replace("'","") + "'");
-    while(result.next())
-    {
-	return new ApplicationDescription(
-		    result.value(0).toString(),
-		    result.value(1).toString(),
-		    result.value(2).toString(),
-		    result.value(3).toString(),
-		    result.value(4).toString()
-		    );
-    }
-    return new ApplicationDescription();
-}
-
-ApplicationDescription* Settings::GetAppFromDBus(QString path)
-{
-    QSqlQuery result = dbConnection.exec("SELECT name, exec, icon, dbus, desktopFile FROM `apps` WHERE dbus='" + path.replace("'","") + "'");
-    while(result.next())
-    {
-	return new ApplicationDescription(
-		    result.value(0).toString(),
-		    result.value(1).toString(),
-		    result.value(2).toString(),
-		    result.value(3).toString(),
-		    result.value(4).toString()
-		    );
-    }
-    return new ApplicationDescription();
-}
-
-QList<QString> Settings::GetAppNames()
-{
-    QList<QString> appNames;
-    QSqlQuery result = dbConnection.exec("SELECT name FROM `apps`");
-    while(result.next())
-	appNames << result.value(0).toString();
-    return appNames;
-}
-
-bool Settings::IsDBusMonitor(QString name)
-{
-    QSqlQuery result = dbConnection.exec("SELECT dbus FROM `apps` WHERE name='" + name.replace("'","") + "'");
-    while(result.next())
-	return !result.value(0).toString().isEmpty();
-    return false;
-}
-
-bool SettingExists(QString setting)
-{
-    QSqlQuery reply = dbConnection.exec("SELECT name from `settings`");
-    while(reply.next())
-    {
-	if(reply.value(0) == setting)
-	    return true;
-    }
-    return false;
-}
-
-void Settings::SetSetting(QString setting, QVariant value)
-{
-    if(SettingExists(setting))
-	dbConnection.exec(QString("UPDATE `settings` value='") + value.toString().replace("'","") + QString("' WHERE name='") + setting + QString("'"));
-    else
-	dbConnection.exec(QString("INSERT INTO `settings` VALUES('") + setting + QString("','") + value.toString().replace("'","") + QString("')"));
-}
-
-QVariant Settings::GetSetting(QString setting, QVariant defaultValue)
-{
-	QSqlQuery query = dbConnection.exec(QString("SELECT name, value FROM `settings` WHERE name='") + setting + QString("'"));
-	while(query.next())
-		return query.value(1);
-	return defaultValue;
+    return apps;
 }

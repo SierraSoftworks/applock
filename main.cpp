@@ -33,6 +33,17 @@ void PrintHelp()
     qDebug() << "	Shows this help page";
 }
 
+bool IsDaemonRunning()
+{
+    QDBusInterface dbus(
+		"com.sierrasoftworks.AppLock",
+		"/com/sierrasoftworks/AppLock",
+		"com.sierrasoftworks.AppLock.Daemon");
+
+
+    return dbus.isValid();
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -78,10 +89,35 @@ int main(int argc, char *argv[])
 	    if(appDescriptor.IsDBusService())
 		qDebug() << "DBus Service:" << appDescriptor.getAppDBus();
 
-	    Settings settings;
+	    if(IsDaemonRunning())
+	    {
+		QDBusInterface dbus(
+			    "com.sierrasoftworks.AppLock",
+			    "/com/sierrasoftworks/AppLock",
+			    "com.sierrasoftworks.AppLock.Daemon");
 
-	    settings.AddApp(appDescriptor);
 
+		if(!dbus.isValid())
+		{
+		    qDebug() << "Daemon Not Running";
+		    return 1;
+		}
+		if(appDescriptor.IsDBusService())
+		    dbus.call("AddSearch", appDescriptor.getAppName(), "session", "type='method_call',interface='" + appDescriptor.getAppDBus() + "',member='top_application'");
+		else
+		    dbus.call("AddApp", appDescriptor.getAppName(), appDescriptor.getAppPath());
+
+	    }
+	    else
+	    {
+		Settings settings;
+
+		if(appDescriptor.IsDBusService())
+		    settings.AddSearch(appDescriptor.getAppName(), 1, "type='method_call',interface='" + appDescriptor.getAppDBus() + "',member='top_application'");
+		else
+		    settings.AddApp(appDescriptor.getAppName(), appDescriptor.getAppPath());
+
+	    }
 	    qDebug() << "Added to list of locked apps";
 	    return 0;
 	}
@@ -117,9 +153,34 @@ int main(int argc, char *argv[])
 	    if(appDescriptor.IsDBusService())
 		qDebug() << "DBus Service:" << appDescriptor.getAppDBus();
 
-	    Settings settings;
+	    if(IsDaemonRunning())
+	    {
+		QDBusInterface dbus(
+			    "com.sierrasoftworks.AppLock",
+			    "/com/sierrasoftworks/AppLock",
+			    "com.sierrasoftworks.AppLock.Daemon");
 
-	    settings.RemoveApp(appDescriptor);
+
+		if(!dbus.isValid())
+		{
+		    qDebug() << "Daemon Not Running";
+		    return 1;
+		}
+
+		if(appDescriptor.IsDBusService())
+		    dbus.call("RemoveSearch", appDescriptor.getAppName());
+		else
+		    dbus.call("RemoveApp", appDescriptor.getAppName());
+	    }
+	    else
+	    {
+		Settings settings;
+
+		if(appDescriptor.IsDBusService())
+		    settings.RemoveSearch(appDescriptor.getAppName());
+		else
+		    settings.RemoveApp(appDescriptor.getAppName());
+	    }
 
 	    qDebug() << "Removed from list of locked apps";
 	    return 0;
@@ -128,16 +189,24 @@ int main(int argc, char *argv[])
 	{
 	    //Print a list of the locked DBus apps
 	    Settings settings;
-	    QList<QString> lockedApps = settings.GetAppNames();
-	    for(int i = 0; i < lockedApps.count(); i++)
-	    {
-		ApplicationDescription *app = settings.GetAppFromName(lockedApps[i]);
-		if(app->IsDBusService())
-		    qDebug() << app->getAppName() << "-" << app->getAppDBus();
-		else
-		    qDebug() << app->getAppName() << "-" << app->getAppPath();
-		delete app;
-	    }
+	    QStringList apps = settings.GetAppNames();
+	    QStringList session = settings.GetSearchNames(1);
+	    //QStringList system = settings.GetSearchNames(2);
+
+	    qDebug() << "Applications:";
+	    foreach(QString app, apps)
+		qDebug() << " " << app;
+
+	    //qDebug() << "";
+	    //qDebug() << "System Bus Monitors:";
+	    //foreach(QString name, system)
+		//qDebug() << " " << name;
+
+	    qDebug() << "";
+	    qDebug() << "Session Bus Monitors:";
+	    foreach(QString name, session)
+		qDebug() << " " << name;
+
 	    return 0;
 	}
 	else if (arg == "--help" || arg == "-?")
@@ -163,12 +232,12 @@ int main(int argc, char *argv[])
 	    if(!QDBusConnection::sessionBus().isConnected())
 	    {
 		qWarning("Could not connect to session bus");
-		exit(1);
+		return 1;
 	    }
 	    if(!QDBusConnection::sessionBus().registerService("com.sierrasoftworks.AppLock"))
 	    {
 		qDebug() << "Failed to register service:" << QDBusConnection::sessionBus().lastError().message();
-		exit(2);
+		return 1;
 	    }
 
 	    Daemon *daemon = new Daemon();
@@ -177,7 +246,7 @@ int main(int argc, char *argv[])
 							     daemon,QDBusConnection::ExportAllContents))
 	    {
 		qDebug() << "Failed to register object:" << QDBusConnection::sessionBus().lastError().message();
-		exit(3);
+		return 1;
 	    }
 	    return app.exec();
 	}

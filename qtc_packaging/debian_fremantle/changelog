@@ -1,4 +1,16 @@
-applock (0.2.1) unstable; urgency=low
+applock (0.2.2) unstable; urgency=low
+
+  * Complete rewrite of DBusMonitor code to allow monitoring of methods other than top_application
+  * Database storage revised (incompatible with previous versions)
+  * Add and Remove commands are now passed to the daemon if it is running
+  * New DBus methods added to daemon
+  * Less dependant on .desktop files
+  * Reduced memory usage
+  * Settings are now persistent when set from user-space (no root access required)
+
+ -- Benjamin Pannell <contact@sierrasoftworks.com>  Sun, 26 Jun 2011 11:40:27 +0200
+
+applock (0.2.2) unstable; urgency=low
 
   * Help is now displayed correctly if no arguments are given to the applock executable
   * Added --clear-apps to allow quick clearing of database
@@ -9,7 +21,7 @@ applock (0.2.1) unstable; urgency=low
 
  -- Benjamin Pannell <contact@sierrasoftworks.com>  Fri, 24 Jun 2011 20:03:30 +0200
 
-applock (0.2.0) unstable; urgency=low
+applock (0.2.2) unstable; urgency=low
 
   * Initial release.
   * Meets Milestone 1 development goals

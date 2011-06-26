@@ -5,6 +5,9 @@ if [ ! -h /usr/bin/applock ]; then
     ln -s /opt/applock/AppLock /usr/bin/applock
 fi
 echo "Post Install complete"
-echo "Starting daemon"
+echo "Starting AppLock Daemon"
 initctl emit AppLockStartDaemon
 echo "Daemon Started"
+if [ -e /opt/applock/settings.db ]; then
+    chmod +rw /opt/applock/settings.db
+fi

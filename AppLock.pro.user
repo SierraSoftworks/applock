@@ -298,7 +298,7 @@
    <value key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName" type="QString">Maemo5</value>
    <value key="ProjectExplorer.ProjectConfiguration.DisplayName" type="QString">Maemo5</value>
    <value key="ProjectExplorer.ProjectConfiguration.Id" type="QString">Qt4ProjectManager.Target.MaemoDeviceTarget</value>
-   <value key="ProjectExplorer.Target.ActiveBuildConfiguration" type="int">2</value>
+   <value key="ProjectExplorer.Target.ActiveBuildConfiguration" type="int">0</value>
    <value key="ProjectExplorer.Target.ActiveDeployConfiguration" type="int">0</value>
    <value key="ProjectExplorer.Target.ActiveRunConfiguration" type="int">0</value>
    <valuemap key="ProjectExplorer.Target.BuildConfiguration.0" type="QVariantMap">
@@ -476,18 +476,22 @@
       <value key="Qt4ProjectManager.MaemoRunConfiguration.DeployToSysroot" type="bool">true</value>
       <value key="Qt4ProjectManager.MaemoRunConfiguration.DeviceId" type="qulonglong">3</value>
       <valuelist key="Qt4ProjectManager.MaemoRunConfiguration.LastDeployedFiles" type="QVariantList">
+       <value type="QString">/home/sierra/Desktop/Projects/AppLock-build-maemo/applock_0_2_2_armel.deb</value>
        <value type="QString">/home/sierra/Desktop/Projects/AppLock-build-maemo/applock_0_1_0_armel.deb</value>
        <value type="QString">/home/sierra/Desktop/Projects/AppLock-build-maemo/applock_0_2_0_armel.deb</value>
       </valuelist>
       <valuelist key="Qt4ProjectManager.MaemoRunConfiguration.LastDeployedHosts" type="QVariantList">
        <value type="QString">192.168.1.118</value>
        <value type="QString">192.168.1.118</value>
+       <value type="QString">192.168.1.118</value>
       </valuelist>
       <valuelist key="Qt4ProjectManager.MaemoRunConfiguration.LastDeployedRemotePaths" type="QVariantList">
        <value type="QString"></value>
        <value type="QString"></value>
+       <value type="QString"></value>
       </valuelist>
       <valuelist key="Qt4ProjectManager.MaemoRunConfiguration.LastDeployedTimes" type="QVariantList">
+       <value type="QDateTime">2011-06-26T13:50:07</value>
        <value type="QDateTime">2011-06-24T11:47:02</value>
        <value type="QDateTime">2011-06-24T16:13:54</value>
       </valuelist>

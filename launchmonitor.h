@@ -4,8 +4,6 @@
 #include <QtCore>
 #include <QtDBus>
 
-#include "applicationdescription.h"
-#include "dbusmonitor.h"
 #include "settings.h"
 
 class LaunchMonitor : public QThread
@@ -15,31 +13,18 @@ class LaunchMonitor : public QThread
 public:
     LaunchMonitor();
     virtual ~LaunchMonitor();
-    void SetSettings(Settings* settings);
+    void SetMonitoredApps(QStringList apps);
     bool IsMonitoredApp(QString app);
-    bool IsMonitoredDBus(QString dbus);
-    QString GetDBusAppName(QString interface);
-    QString GetAppPath(QString dbusName);
-    ApplicationDescription* GetMonitoredApp(QString appPath);
+    void AddMonitoredApp(QString app);
 
 private:
     void ProcessRunningApps();
-    void ProcessDBus();
 
 private slots:
-    void OnMethodCall(QString interface, QString method);
-    void OnSignal(QString interface, QString signal);
     void OnDBusLinked(QString name, QString oldName, QString newName);
-
-public slots:
-    void PrintMonitoredApps();
-    void PrintMonitoredDBus();
-    void PrintMonitors();
 
 signals:
     void ApplicationLaunched(QString app);
-    void ApplicationClosed(QString app);
-    void DBusLaunched(QString dbus);
 };
 
 #endif // LAUNCHMONITOR_H

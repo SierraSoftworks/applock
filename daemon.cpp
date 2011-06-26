@@ -1,8 +1,11 @@
 #include "daemon.h"
 
-LaunchMonitor *launchMonitor;
 PhoneControl *phoneControl;
 Settings *settings;
+
+DBusMonitor *systemMonitor;
+DBusMonitor *sessionMonitor;
+LaunchMonitor *launchMonitor;
 
 Daemon::Daemon()
 {
@@ -14,11 +17,24 @@ Daemon::Daemon()
     qDebug() << "Loading Application Monitor";
     launchMonitor = new LaunchMonitor();
     connect(launchMonitor,SIGNAL(ApplicationLaunched(QString)), this, SLOT(OnAppLaunched(QString)));
-    connect(launchMonitor,SIGNAL(ApplicationClosed(QString)), this, SIGNAL(LockedAppClosed(QString)));
-    launchMonitor->SetSettings(settings);
+    launchMonitor->SetMonitoredApps(settings->GetApps());
 
-    PrintMonitorList();
+    //qDebug() << "Loading System Bus Monitor";
 
+    //systemMonitor = new DBusMonitor(2, settings->GetSearches(2)); //System Bus
+    //connect(systemMonitor,SIGNAL(MethodCall(QString,QString)), this, SLOT(OnSystemBusMethod(QString,QString)));
+    //systemMonitor->Start();
+
+    qDebug() << "Loading Session Bus Monitor";
+
+    QStringList sessionFilters = settings->GetSearches(1);
+    qDebug() << "Session Filters:";
+    foreach(QString filter, sessionFilters)
+	qDebug() << "  " << filter;
+
+    sessionMonitor = new DBusMonitor(1, sessionFilters); //Session Bus
+    connect(sessionMonitor,SIGNAL(MethodCall(QString,QString)), this, SLOT(OnSessionBusMethod(QString,QString)));
+    sessionMonitor->Start();
 }
 
 Daemon::~Daemon()
@@ -51,9 +67,7 @@ void Daemon::OnAppLaunched(QString app)
 
 void Daemon::PrintMonitorList()
 {
-    qDebug() << "Monitored Applications:";
-    launchMonitor->PrintMonitors();
-    qDebug() << "";
+
 }
 
 void Daemon::PrintStatus()
@@ -62,12 +76,75 @@ void Daemon::PrintStatus()
     qDebug() << "Phone Status:" << (PhoneControl::IsLocked() ? "Locked" : "Unlocked");
 }
 
-QList<QString> Daemon::GetMonitoredApplicationNames()
-{
-    return settings->GetAppNames();
-}
-
 QString Daemon::GetStatus()
 {
     return QString("Running - Phone ") + (PhoneControl::IsLocked() ? "Locked" : "Unlocked");
+}
+
+bool Daemon::AddApp(QString name, QString path)
+{
+    QFileInfo exe(path);
+
+    QString absPath;
+
+    if(!exe.isFile())
+	return false;
+
+    if(exe.isSymLink())
+	absPath = exe.symLinkTarget();
+    else
+	absPath = exe.absoluteFilePath();
+
+    qDebug() << "Adding App:" << name;
+    qDebug() << "Path:" << absPath;
+
+    settings->AddApp(name,absPath);
+    launchMonitor->AddMonitoredApp(absPath);
+    return true;
+}
+
+bool Daemon::AddSearch(QString name, QString bus, QString search)
+{
+    qDebug() << "Adding Filter:" << name << "(" << bus << ")";
+    qDebug() << search;
+    int busID = 1;
+
+    if(!bus.contains("session", Qt::CaseInsensitive))
+	//busID = 2;
+	return false;
+
+    settings->AddSearch(name, busID, search);
+    if(busID == 1)
+	sessionMonitor->AddFilter(search);
+    else if(busID == 2)
+	systemMonitor->AddFilter(search);
+
+    qDebug() << "Filter Added";
+    return true;
+}
+
+bool Daemon::RemoveApp(QString name)
+{
+    settings->RemoveApp(name);
+    return true;
+}
+
+bool Daemon::RemoveSearch(QString name)
+{
+    settings->RemoveSearch(name);
+    return true;
+}
+
+void Daemon::OnSystemBusMethod(QString interface, QString method)
+{
+    if(interface == "org.freedesktop.DBus")
+	return;
+    OnAppLaunched(interface);
+}
+
+void Daemon::OnSessionBusMethod(QString interface, QString method)
+{
+    if(interface == "org.freedesktop.DBus")
+	return;
+    OnAppLaunched(interface);
 }

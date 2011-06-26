@@ -9,11 +9,14 @@ class DBusMonitor : public QThread
     Q_OBJECT
 
 public:
-    DBusMonitor();
-    DBusMonitor(QStringList filters);
+    DBusMonitor(int bus);
+    DBusMonitor(QString bus);
+    DBusMonitor(int bus, QStringList filters);
+    DBusMonitor(QString bus, QStringList filters);
     ~DBusMonitor();
     void OnMethodCall(QString interface, QString method);
     void OnSignal(QString interface, QString signal);
+    bool AddFilter(QString filter);
 
 public slots:
     void Start();

@@ -12,21 +12,19 @@ class Settings : public QObject
 public:
     Settings();
     virtual ~Settings();    
-    void AddApp(ApplicationDescription app);
-    void RemoveApp(ApplicationDescription app);
-    bool IsMonitoredApp(QString path);
-    bool IsMonitoredDBus(QString dbus);
-    bool IsDBusMonitor(QString name);
-    QString GetAppNamePath(QString path);
-    QString GetAppNameDBus(QString dbus);
-    ApplicationDescription* GetAppFromPath(QString path);
-    ApplicationDescription* GetAppFromDBus(QString dbus);
-    ApplicationDescription* GetAppFromName(QString name);
-    QList<QString> GetAppNames();
-    QVariant GetSetting(QString setting, QVariant defaultValue = QVariant(QString()));
-    void SetSetting(QString setting, QVariant value);
-    void ClearApps();
 
+    void AddSearch(QString name, int bus, QString watch);
+    QStringList GetSearches(int bus);
+    QStringList GetSearchNames(int bus);
+    void RemoveSearch(QString name);
+
+    void AddApp(QString name, QString path);
+    QStringList GetApps();
+    QStringList GetAppNames();
+    void RemoveApp(QString name);
+
+    void ClearApps();
+    void ClearSearches();
 };
 
 #endif // SETTINGS_H
