@@ -1,0 +1,5 @@
+DesktopFile=ovi.desktop
+Name=Ovi Store
+Example=Visit the Nokia Ovi Store's website
+[DBus]
+OviStore=type='method_call',interface='com.nokia.osso_browser',member='open_new_window',arg0='http://link.ovi.mobi/n900ovistore'

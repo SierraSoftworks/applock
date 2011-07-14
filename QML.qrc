@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/Lock.png</file>
+        <file>qml/mainWindow.qml</file>
+        <file>AppLock.png</file>
+        <file>qml/Menu.qml</file>
+        <file>qml/NotificationBar.qml</file>
+        <file>qml/Header.qml</file>
+        <file>qml/ItemDetails.qml</file>
+        <file>qml/ScrollBar.qml</file>
+        <file>qml/List.qml</file>
+        <file>qml/Button.qml</file>
+        <file>qml/RestartDaemon.qml</file>
+    </qresource>
+</RCC>

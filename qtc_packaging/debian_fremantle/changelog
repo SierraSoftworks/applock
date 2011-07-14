@@ -1,4 +1,44 @@
-applock (0.2.2) unstable; urgency=low
+applock (0.3.2) stable; urgency=low
+
+  * Fixes problem where binary applications could not be locked
+  * Added a substitution file for AppLock to prevent people from locking the UI themselves
+  * Fixed a problem where the menu provided a background gradient which wasn't intended
+  * Fixed a failure to return a value in the isScript(string: name) function
+
+ -- Benjamin Pannell <contact@sierrasoftworks.com>  Thu, 14 Jul 2011 23:03:30 +0200
+
+applock (0.3.2) stable; urgency=low
+
+  * Fixed problems with UI not starting when menu item is clicked
+  * Default command line option now starts UI
+  * Fixed a problem where the menu button would need to be pressed twice for it to appear
+  * Added an outline to the menu button to illustrate that it is clickable
+  * Added a Description attribute to override files
+  * Added the description text to the list view
+  * Fixed a problem where QML would attempt to load missing icons 
+  * Added localisation support for descriptions in .desktop files
+  * Added an Exit method to the daemon's DBus
+  * Daemon now locks phone upon call to Exit method (Security reasons)
+  * Added case sensitive command line handling
+  * Massive fixes to Upstart script to prevent running as root
+  * Functions in UI code to support scripts and complex apps
+  * Settings are now handled on the UI to reduce possibilities for crashes
+  * Removed some unnecessary dialogs
+
+ -- Benjamin Pannell <contact@sierrasoftworks.com>  Thu, 14 Jul 2011 20:26:15 +0200
+
+applock (0.3.2) stable; urgency=low
+
+  * New GUI written in QML has been included
+  * Service file information is now loaded correctly
+  * Icons and binary files are now searched for using a list of directories
+  * Added support for substitution files which allow custom definitions to be provided for certain applications
+  * Added some additional functions to the daemon
+  * Fixed some bugs regarding localisation and the processing of .desktop files
+
+ -- Benjamin Pannell <contact@sierrasoftworks.com>  Thu, 07 Jul 2011 23:17:14 +0200
+
+applock (0.3.2) unstable; urgency=low
 
   * Complete rewrite of DBusMonitor code to allow monitoring of methods other than top_application
   * Database storage revised (incompatible with previous versions)
@@ -10,7 +50,7 @@ applock (0.2.2) unstable; urgency=low
 
  -- Benjamin Pannell <contact@sierrasoftworks.com>  Sun, 26 Jun 2011 11:40:27 +0200
 
-applock (0.2.2) unstable; urgency=low
+applock (0.3.2) unstable; urgency=low
 
   * Help is now displayed correctly if no arguments are given to the applock executable
   * Added --clear-apps to allow quick clearing of database
@@ -21,7 +61,7 @@ applock (0.2.2) unstable; urgency=low
 
  -- Benjamin Pannell <contact@sierrasoftworks.com>  Fri, 24 Jun 2011 20:03:30 +0200
 
-applock (0.2.2) unstable; urgency=low
+applock (0.3.2) unstable; urgency=low
 
   * Initial release.
   * Meets Milestone 1 development goals

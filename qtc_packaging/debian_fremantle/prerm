@@ -1,3 +1,4 @@
 #!/usr/bin/env sh
-echo "Stopping AppLock Daemon"
+echo "Stopping Daemon"
 su - user -c "/usr/bin/dbus-send --dest=com.sierrasoftworks.AppLock /com/sierrasoftworks/AppLock com.sierrasoftworks.AppLock.Daemon.Exit"
+echo "Complete"

@@ -11,7 +11,7 @@ for(deploymentfolder, DEPLOYMENTFOLDERS) {
     itemsources = $${item}.sources
     $$itemsources = $$eval($${deploymentfolder}.source)
     itempath = $${item}.path
-    $$itempath= $$eval($${deploymentfolder}.target)
+    $$itempath = $$eval($${deploymentfolder}.target)
     export($$itemsources)
     export($$itempath)
     DEPLOYMENT += $$item
@@ -23,6 +23,33 @@ unix {
     maemo5 {
         desktopfile.path = /usr/share/applications/hildon
     }
+    else {
+	desktopfile.path = /usr/share/applications
+    }
+
+	copyCommand =
+	for(deploymentfolder, DEPLOYMENTFOLDERS) {
+	    source = $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source)
+	    source = $$replace(source, \\\\, /)
+	    target = $$OUT_PWD/$$eval($${deploymentfolder}.target)
+	    target = $$replace(target, \\\\, /)
+	    sourcePathSegments = $$split(source, /)
+	    targetFullPath = $$target/$$last(sourcePathSegments)
+	    !isEqual(source,$$targetFullPath) {
+		!isEmpty(copyCommand):copyCommand += &&
+		copyCommand += $(MKDIR) \"$$target\"
+		copyCommand += && $(COPY_DIR) \"$$source\" \"$$target\"
+	    }
+	}
+	!isEmpty(copyCommand) {
+	    copyCommand = @echo Copying application data... && $$copyCommand
+	    copydeploymentfolders.commands = $$copyCommand
+	    first.depends = $(first) copydeploymentfolders
+	    export(first.depends)
+	    export(copydeploymentfolders.commands)
+	    QMAKE_EXTRA_TARGETS += first copydeploymentfolders
+	}
+
     installPrefix = /opt/applock
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         item = item$${deploymentfolder}
@@ -42,6 +69,8 @@ unix {
     event.path = /etc/event.d
     service.files = com.sierrasoftworks.AppLock.service
     service.path = /usr/share/dbus-1/services
+    init.files = init.d/applock
+    init.path = /etc/init.d
     export(icon.files)
     export(icon.path)
     export(desktopfile.files)
@@ -51,7 +80,9 @@ unix {
     export(event.path)
     export(service.files)
     export(service.path)
-    INSTALLS += desktopfile icon target event service
+    export(init.files)
+    export(init.path)
+    INSTALLS += desktopfile icon target event service init
 }
 
 export (ICON)

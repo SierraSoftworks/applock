@@ -1,13 +1,12 @@
 #!/usr/bin/env sh
 echo "Begining post install setup for AppLock"
+chmod +rw /opt/applock
 chmod +x /opt/applock/AppLock
+chmod -w /opt/applock/AppOverrides
+chmod +x /etc/init.d/applock
 if [ ! -h /usr/bin/applock ]; then
     ln -s /opt/applock/AppLock /usr/bin/applock
 fi
 echo "Post Install complete"
 echo "Starting AppLock Daemon"
-initctl emit AppLockStartDaemon
-echo "Daemon Started"
-if [ -e /opt/applock/settings.db ]; then
-    chmod +rw /opt/applock/settings.db
-fi
+su - user -c "/usr/bin/dbus-send --dest=com.sierrasoftworks.AppLock /com/sierrasoftworks/AppLock com.sierrasoftworks.AppLock.Daemon.GetStatus"

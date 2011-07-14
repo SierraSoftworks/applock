@@ -1,0 +1,5 @@
+DesktopFile=user-guide.desktop
+Name=User Guide
+Description=The Nokia N900's User Guide
+[DBus]
+UserGuide=type='method_call',interface='com.nokia.osso_browser',member='open_new_window',arg0='http://maemo.nokia.com/n900/userguides'

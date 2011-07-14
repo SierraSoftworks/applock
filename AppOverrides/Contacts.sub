@@ -1,0 +1,6 @@
+DesktopFile=osso-addressbook.desktop
+Name=Contacts
+Description=Built in Contacts Application
+[DBus]
+Contacts_Shortcut=type='method_call',interface='com.nokia.osso_addressbook',member='top_application'
+Contacts_Keypress=type='method_call',interface='com.nokia.osso_addressbook',member='search_append'

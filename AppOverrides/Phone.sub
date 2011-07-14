@@ -1,0 +1,6 @@
+DesktopFile=rtcom-call-ui.desktop
+Name=Phone
+Description=The phone application
+[DBus]
+Phone_Shortcut=type='method_call',interface='com.nokia.CallUI',member='top_application'
+Phone_Keypress=type='method_call',interface='com.nokia.CallUI',member='ShowDialpad'

@@ -1,11 +1,14 @@
-#include "mainwindow.h"
-
 #include "settings.h"
 #include "daemon.h"
 #include "applicationdescription.h"
+#include "qmlviewer.h"
+#include "uidaemonhandler.h"
+#include "qmldaemoninterface.h"
 
 #include <QtGui/QApplication>
 #include <QtDBus>
+#include <QtGui>
+#include <QtDeclarative>
 
 void PrintHelp()
 {
@@ -102,10 +105,22 @@ int main(int argc, char *argv[])
 		    qDebug() << "Daemon Not Running";
 		    return 1;
 		}
-		if(appDescriptor.IsDBusService())
+		if(appDescriptor.IsDBusService() && !SubstitutionFileParser::IsSubstituted(appDescriptor.getAppDesktopFile()))
 		    dbus.call("AddSearch", appDescriptor.getAppName(), "session", "type='method_call',interface='" + appDescriptor.getAppDBus() + "',member='top_application'");
-		else
+		else if(!appDescriptor.IsDBusService() && !SubstitutionFileParser::IsSubstituted(appDescriptor.getAppDesktopFile()))
 		    dbus.call("AddApp", appDescriptor.getAppName(), appDescriptor.getAppPath());
+		else
+		{
+		    QMap<QString,QString> searches = SubstitutionFileParser::GetApplicationDBusSearches(appDescriptor.getAppDesktopFile());
+		    QMap<QString,QString> paths = SubstitutionFileParser::GetApplicationPaths(appDescriptor.getAppDesktopFile());
+
+		    foreach(QString search, searches.keys())
+			dbus.call("AddSearch",search,"session",searches.value(search));
+
+		    foreach(QString path, paths.keys())
+			dbus.call("AddApp",path,paths.value(path));
+
+		}
 
 	    }
 	    else
@@ -216,27 +231,41 @@ int main(int argc, char *argv[])
 	}
 	else if(arg == "-ui")
 	{
-	    qDebug() << "This functionality is not yet available";
-	    exit(1);
+	    QmlApplicationViewer viewer;
+	    viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
 
-	    MainWindow mainWindow;
-	    mainWindow.setOrientation(MainWindow::ScreenOrientationLockLandscape);
-	    mainWindow.showExpanded();
-	    mainWindow.LoadDesktopFiles();
+	    QObject *qmlContext;
+	    UIDaemonHandler *daemonInterface = new UIDaemonHandler(qmlContext);
+
+	    qmlRegisterType<QMLDaemonInterface>("Sierra",1,0,"AppLock");
+
+	    viewer.rootContext()->setContextProperty("daemon", daemonInterface);
+
+	    //viewer.setMainQmlFile(QLatin1String("qml/mainWindow.qml"));
+	    viewer.setMainQmlFile(QLatin1String("qrc:/qml/mainWindow.qml"));
+
+	    viewer.showExpanded();
+	    viewer.showFullScreen();
+	    viewer.setWindowTitle("AppLock");
+
+	    daemonInterface->UpdateAppList();
 
 	    return app.exec();
+
 	}
 	else if(arg == "-d")
 	{
 	    //Run in Daemon mode
 	    if(!QDBusConnection::sessionBus().isConnected())
 	    {
-		qWarning("Could not connect to session bus");
+		qWarning("Could not connect to session bus when starting daemon.");
+		qWarning("This should never happen and indicates a problem communicating with DBus");
 		return 1;
 	    }
 	    if(!QDBusConnection::sessionBus().registerService("com.sierrasoftworks.AppLock"))
 	    {
 		qDebug() << "Failed to register service:" << QDBusConnection::sessionBus().lastError().message();
+		qDebug() << "This probably means that the daemon is already running";
 		return 1;
 	    }
 
@@ -246,15 +275,30 @@ int main(int argc, char *argv[])
 							     daemon,QDBusConnection::ExportAllContents))
 	    {
 		qDebug() << "Failed to register object:" << QDBusConnection::sessionBus().lastError().message();
+		qDebug() << "This shouldn't happen and probably indicates a problem with your Qt install or with DBus";
 		return 1;
 	    }
 	    return app.exec();
 	}
-	else if(arg == "--clear-apps")
+	else if(arg == "--clear")
 	{
 	    Settings settings;
 
-	    settings.ClearApps();
+	    if(i == argc - 1)
+	    {
+		settings.ClearApps();
+		settings.ClearCMDLines();
+		settings.ClearSearches();
+	    }
+	    else
+	    {
+		if(QString(argv[i+1]).contains("apps",Qt::CaseInsensitive))
+		    settings.ClearApps();
+		else if(QString(argv[i+1]).contains("dbus",Qt::CaseInsensitive))
+		    settings.ClearSearches();
+		else if(QString(argv[i+1]).contains("cmdlines",Qt::CaseInsensitive))
+		    settings.ClearCMDLines();
+	    }
 
 	    return 0;
 	}
@@ -285,8 +329,27 @@ int main(int argc, char *argv[])
 	}
     }
 
-    PrintHelp();
 
+    QmlApplicationViewer viewer;
+    viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
+
+    QObject *qmlContext;
+    UIDaemonHandler *daemonInterface = new UIDaemonHandler(qmlContext);
+
+    qmlRegisterType<QMLDaemonInterface>("Sierra",1,1,"AppLock");
+
+    viewer.rootContext()->setContextProperty("daemon", daemonInterface);
+
+    //viewer.setMainQmlFile(QLatin1String("qml/mainWindow.qml"));
+    viewer.setMainQmlFile(QLatin1String("qrc:/qml/mainWindow.qml"));
+
+    viewer.showExpanded();
+    viewer.showFullScreen();
+    viewer.setWindowTitle("AppLock");
+
+    daemonInterface->UpdateAppList();
+
+    return app.exec();
 
 
 }

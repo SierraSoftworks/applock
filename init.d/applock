@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+case $1 in
+start)
+    echo Starting Daemon
+    #initctl emit AppLockStartDaemon
+    dbus-send --dest=com.sierrasoftworks.AppLock /com/sierrasoftworks/AppLock com.sierrasoftworks.AppLock.Daemon.GetStatus
+    ;;
+stop)
+    echo Exiting Daemon, phone will lock
+    initctl emit AppLockStopDaemon
+    dbus-send --dest=com.sierrasoftworks.AppLock /com/sierrasoftworks/AppLock com.sierrasoftworks.AppLock.Daemon.Exit
+    ;;
+restart)
+    echo Restarting Daemon, phone will lock
+    dbus-send --dest=com.sierrasoftworks.AppLock /com/sierrasoftworks/AppLock com.sierrasoftworks.AppLock.Daemon.Exit
+    read -e -p "Press Enter to continue..."
+    dbus-send --dest=com.sierrasoftworks.AppLock /com/sierrasoftworks/AppLock com.sierrasoftworks.AppLock.Daemon.GetStatus
+    ;;
+*)
+    echo $1 is not a valid option.
+    echo Valid options are:
+    echo "   start"
+    echo "   stop"
+    echo "   restart"
+    ;;
+esac

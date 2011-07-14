@@ -1,0 +1,9 @@
+DesktopFile=example.desktop
+Name=Example
+Description=Example replacement file
+[DBus]
+Example_DBus=type='method_call',interface='com.example.app',member='method'
+[Bin]
+Example=/opt/example/Example
+[CMD]
+Example_CMDLine=/opt/example/example.sh

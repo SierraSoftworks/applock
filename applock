@@ -1,7 +1,7 @@
 description "Runs the AppLock Daemon"
 author "Benjamin Pannell <contact@sierrasoftworks.com>"
 
-start on XSESSIONS_STARTING
+start on startup
 start on AppLockStartDaemon
 stop on shutdown
 stop on AppLockStopDaemon
@@ -11,9 +11,11 @@ respawn limit 10 10
 
 script
     if [ -d "/opt/applock" ]; then
-		exec /opt/applock/AppLock -d
-		sleep 1
+	    echo "Running AppLock in daemon mode"
+	    su - user -c "exec /opt/applock/AppLock -d"
+	    echo "AppLock has finished running"
     else
-	sleep 5
+	echo "/opt/applock doesn't exist yet, /opt is probably not yet mounted"
     fi
+    sleep 5
 end script

@@ -1,0 +1,3 @@
+DesktopFile=AppLock.desktop
+Name=AppLock
+Description=Locks the phone when certain applications are locked [Can't be locked]

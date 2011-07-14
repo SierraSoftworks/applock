@@ -1,12 +1,5 @@
 #include "daemon.h"
 
-PhoneControl *phoneControl;
-Settings *settings;
-
-DBusMonitor *systemMonitor;
-DBusMonitor *sessionMonitor;
-LaunchMonitor *launchMonitor;
-
 Daemon::Daemon()
 {
     qDebug() << "AppLock Daemon - Loading Settings";
@@ -17,7 +10,7 @@ Daemon::Daemon()
     qDebug() << "Loading Application Monitor";
     launchMonitor = new LaunchMonitor();
     connect(launchMonitor,SIGNAL(ApplicationLaunched(QString)), this, SLOT(OnAppLaunched(QString)));
-    launchMonitor->SetMonitoredApps(settings->GetApps());
+    launchMonitor->SetMonitoredApps(settings->GetApps(), settings->GetCommandLines());
 
     //qDebug() << "Loading System Bus Monitor";
 
@@ -65,17 +58,6 @@ void Daemon::OnAppLaunched(QString app)
     }
 }
 
-void Daemon::PrintMonitorList()
-{
-
-}
-
-void Daemon::PrintStatus()
-{
-    qDebug() << "Status: Running";
-    qDebug() << "Phone Status:" << (PhoneControl::IsLocked() ? "Locked" : "Unlocked");
-}
-
 QString Daemon::GetStatus()
 {
     return QString("Running - Phone ") + (PhoneControl::IsLocked() ? "Locked" : "Unlocked");
@@ -98,7 +80,9 @@ bool Daemon::AddApp(QString name, QString path)
     qDebug() << "Adding App:" << name;
     qDebug() << "Path:" << absPath;
 
+#ifdef DBUSSETTINGS
     settings->AddApp(name,absPath);
+#endif
     launchMonitor->AddMonitoredApp(absPath);
     return true;
 }
@@ -113,25 +97,64 @@ bool Daemon::AddSearch(QString name, QString bus, QString search)
 	//busID = 2;
 	return false;
 
+    qDebug() << "Adding search to settings";
+#ifdef DBUSSETTINGS
     settings->AddSearch(name, busID, search);
-    if(busID == 1)
-	sessionMonitor->AddFilter(search);
-    else if(busID == 2)
-	systemMonitor->AddFilter(search);
+#endif
 
-    qDebug() << "Filter Added";
+    //qDebug() << "Adding filter to monitor";
+    //if(busID == 1)
+	//sessionMonitor->AddFilter(search);
+    //else if(busID == 2)
+	//systemMonitor->AddFilter(search);
+
+    //qDebug() << "Filter Added";
+    return true;
+}
+
+bool Daemon::AddCMD(QString name, QString cmdline)
+{
+    qDebug() << "Adding Command Line Filter:" << name;
+    qDebug() << "Filter:" << cmdline;
+
+#ifdef DBUSSETTINGS
+    settings->AddCommandLine(name,cmdline);
+#endif
+    launchMonitor->AddMonitoredCMDLine(cmdline);
+    return true;
+}
+
+bool Daemon::RemoveCMD(QString name)
+{
+    QString cmdline = settings->GetCommandLine(name);
+    if(cmdline.isNull() || cmdline.isEmpty())
+	return false;
+
+    qDebug() << "Removing Command Line Filter:" << name;
+    launchMonitor->RemoveMonitoredCMDLine(cmdline);
+#ifdef DBUSSETTINGS
+    settings->RemoveCommandLine(name);
+#endif
     return true;
 }
 
 bool Daemon::RemoveApp(QString name)
 {
+    launchMonitor->RemoveMonitoredApp(settings->GetApp(name));
+#ifdef DBUSSETTINGS
     settings->RemoveApp(name);
+#endif
     return true;
 }
 
 bool Daemon::RemoveSearch(QString name)
 {
+   // QString filter = settings->GetSearch(name,1);
+    //if(!filter.isEmpty() && !filter.isNull())
+	//sessionMonitor->RemoveFilter(filter);
+#ifdef DBUSSETTINGS
     settings->RemoveSearch(name);
+#endif
     return true;
 }
 
@@ -147,4 +170,50 @@ void Daemon::OnSessionBusMethod(QString interface, QString method)
     if(interface == "org.freedesktop.DBus")
 	return;
     OnAppLaunched(interface);
+}
+
+void Daemon::Refresh()
+{
+    sessionMonitor->Stop();
+
+    QStringList sessionFilters = settings->GetSearches(1);
+    sessionMonitor->Refresh(sessionFilters);
+
+    sessionMonitor->Start();
+}
+
+void Daemon::Exit()
+{
+    PhoneControl::LockPhone();
+    exit(0);
+}
+
+bool Daemon::IsLockedApp(QString name)
+{
+    if(settings->IsApp(name))
+    {
+	qDebug() << "App" << name << "is locked";
+	return true;
+    }
+    return false;
+}
+
+bool Daemon::IsLockedDBus(QString name)
+{
+    if(settings->IsSearch(name,1))
+    {
+	qDebug() << "DBus" << name << "is locked";
+	return true;
+    }
+    return false;
+}
+
+bool Daemon::IsLockedCMD(QString name)
+{
+    if(settings->IsCommandLine(name))
+    {
+	qDebug() << "CMD" << name << "is locked";
+	return true;
+    }
+    return false;
 }

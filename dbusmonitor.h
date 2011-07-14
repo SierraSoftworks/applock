@@ -17,10 +17,12 @@ public:
     void OnMethodCall(QString interface, QString method);
     void OnSignal(QString interface, QString signal);
     bool AddFilter(QString filter);
+    bool RemoveFilter(QString filter);
 
 public slots:
     void Start();
     void Stop();
+    void Refresh(QStringList filters);
 
 private:
     static void HandleMessage(DBusMessage *message, dbus_bool_t literal);
