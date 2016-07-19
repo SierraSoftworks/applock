@@ -1,4 +1,15 @@
-applock (0.3.2) stable; urgency=low
+applock (0.0.1) stable; urgency=low
+
+  * Added some additional override files for applications that did not lock
+  * Added missing dependency on QtQuickCompat
+  * Updated output from --help to match new --clear command
+  * Fixed missing transparency on menu's background
+  * Changes to some of the UI workflow to improve comprehension of how to perform certain tasks
+  * Increased text spacing in notifications to improve appearance
+
+ -- Benjamin Pannell <contact@sierrasoftworks.com>  Fri, 15 Jul 2011 16:26:37 +0200
+
+applock (0.0.1) stable; urgency=low
 
   * Fixes problem where binary applications could not be locked
   * Added a substitution file for AppLock to prevent people from locking the UI themselves
@@ -7,7 +18,7 @@ applock (0.3.2) stable; urgency=low
 
  -- Benjamin Pannell <contact@sierrasoftworks.com>  Thu, 14 Jul 2011 23:03:30 +0200
 
-applock (0.3.2) stable; urgency=low
+applock (0.0.1) stable; urgency=low
 
   * Fixed problems with UI not starting when menu item is clicked
   * Default command line option now starts UI
@@ -27,7 +38,7 @@ applock (0.3.2) stable; urgency=low
 
  -- Benjamin Pannell <contact@sierrasoftworks.com>  Thu, 14 Jul 2011 20:26:15 +0200
 
-applock (0.3.2) stable; urgency=low
+applock (0.0.1) stable; urgency=low
 
   * New GUI written in QML has been included
   * Service file information is now loaded correctly
@@ -38,7 +49,7 @@ applock (0.3.2) stable; urgency=low
 
  -- Benjamin Pannell <contact@sierrasoftworks.com>  Thu, 07 Jul 2011 23:17:14 +0200
 
-applock (0.3.2) unstable; urgency=low
+applock (0.0.1) unstable; urgency=low
 
   * Complete rewrite of DBusMonitor code to allow monitoring of methods other than top_application
   * Database storage revised (incompatible with previous versions)
@@ -50,7 +61,7 @@ applock (0.3.2) unstable; urgency=low
 
  -- Benjamin Pannell <contact@sierrasoftworks.com>  Sun, 26 Jun 2011 11:40:27 +0200
 
-applock (0.3.2) unstable; urgency=low
+applock (0.0.1) unstable; urgency=low
 
   * Help is now displayed correctly if no arguments are given to the applock executable
   * Added --clear-apps to allow quick clearing of database
@@ -61,7 +72,7 @@ applock (0.3.2) unstable; urgency=low
 
  -- Benjamin Pannell <contact@sierrasoftworks.com>  Fri, 24 Jun 2011 20:03:30 +0200
 
-applock (0.3.2) unstable; urgency=low
+applock (0.0.1) unstable; urgency=low
 
   * Initial release.
   * Meets Milestone 1 development goals

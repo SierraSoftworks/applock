@@ -22,7 +22,7 @@ private:
     void OnAppUnlocked();
     void OnAppLocked();
     void OnError(QString message);
-    \
+
 signals:
     void applicationLoaded(const QString& name, const int& totalApps);
     void applicationLoadingComplete(const int& totalApps);

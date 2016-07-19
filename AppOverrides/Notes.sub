@@ -1,0 +1,5 @@
+DesktopFile=osso_notes.desktop
+Name=Notes
+Description=Write notes on your N900 and save them for later
+[DBus]
+Notes=type='method_call',interface='com.nokia.HildonDesktop.AppMgr',member='LaunchApplication',arg0='osso_notes'

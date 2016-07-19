@@ -23,8 +23,11 @@ void PrintHelp()
     qDebug() << "	the list of locked applications";
     qDebug() << "  --show-apps";
     qDebug() << "	Shows the list of locked executables";
-    qDebug() << "  --clear-apps";
-    qDebug() << "	Clears the database's list of locked applications";
+    qDebug() << "  --clear [OPTION]";
+    qDebug() << "	Clears the database's list of locked applications or a subset";
+    qDebug() << "	    apps";
+    qDebug() << "	    dbus";
+    qDebug() << "	    scripts";
     qDebug() << "  --status";
     qDebug() <<	"	Shows the current status of the daemon";
     qDebug() << "";
@@ -237,7 +240,7 @@ int main(int argc, char *argv[])
 	    QObject *qmlContext;
 	    UIDaemonHandler *daemonInterface = new UIDaemonHandler(qmlContext);
 
-	    qmlRegisterType<QMLDaemonInterface>("Sierra",1,0,"AppLock");
+	    qmlRegisterType<QMLDaemonInterface>("Sierra",1,1,"AppLock");
 
 	    viewer.rootContext()->setContextProperty("daemon", daemonInterface);
 
@@ -296,7 +299,7 @@ int main(int argc, char *argv[])
 		    settings.ClearApps();
 		else if(QString(argv[i+1]).contains("dbus",Qt::CaseInsensitive))
 		    settings.ClearSearches();
-		else if(QString(argv[i+1]).contains("cmdlines",Qt::CaseInsensitive))
+		else if(QString(argv[i+1]).contains("scripts",Qt::CaseInsensitive))
 		    settings.ClearCMDLines();
 	    }
 

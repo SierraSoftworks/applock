@@ -1,0 +1,5 @@
+DesktopFile=hildon-application-manager.desktop
+Name=App Manager
+Description=Install and Remove applications for your N900
+[Bin]
+HAM=/usr/bin/hildon-application-manager

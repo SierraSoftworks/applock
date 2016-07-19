@@ -176,6 +176,7 @@ Rectangle {
 
     function restartDaemonClicked()
     {
+	menu.state = "Hidden"
 	//showNotification("Restarting Daemon");
 	daemon.ExitDaemon();
 	daemonDialog.show();
@@ -194,6 +195,7 @@ Rectangle {
 
     function startDaemon()
     {
+	showNotificationTimeout("Starting Daemon, please wait", 2000);
 	menu.daemonStatus = "<b>Daemon Status:</b> " + getDaemonStatus();
     }
 

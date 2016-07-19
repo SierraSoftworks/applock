@@ -89,7 +89,7 @@ Text {
  id: notificationText
  text: "Loading..."
  anchors.bottomMargin: 5
- anchors.leftMargin: 10
+ anchors.leftMargin: 20
  horizontalAlignment: Text.AlignLeft
  verticalAlignment: Text.AlignVCenter
  anchors.fill: parent

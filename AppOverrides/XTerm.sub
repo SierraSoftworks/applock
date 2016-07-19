@@ -1,6 +1,8 @@
 DesktopFile=osso-xterm.desktop
 Name=X Terminal
-Description=The standard terminal available on the N900
+Description=Terminal Emulator
+[Bin]
+XTerm=/usr/bin/osso-xterm
 [DBus]
-XTerm_Shortcut=type='method_call',interface='com.nokia.xterm',member='top_application'
 XTerm_Keypress=type='method_call',interface='com.nokia.xterm',member='run_command'
+XTerm_Keypress=type='method_call',interface='com.nokia.xterm',member='top_application'

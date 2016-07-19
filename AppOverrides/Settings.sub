@@ -1,0 +1,5 @@
+DesktopFile=hildon-control-panel.desktop
+Name=Settings
+Description=Your phone's control panel containing security options and other settings
+[DBus]
+Settings=type='method_call',interface='org.freedesktop.DBus',member='RequestName',arg0='com.nokia.controlpanel'

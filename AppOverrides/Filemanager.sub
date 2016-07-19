@@ -1,0 +1,5 @@
+DesktopFile=filemanager.desktop
+Name=File Manager
+Description=Allows you to browse your phone's file system
+[DBus]
+FileManager=type='method_call',interface='org.freedesktop.DBus',member='RequestName',arg0='com.nokia.osso_filemanager'

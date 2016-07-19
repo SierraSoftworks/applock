@@ -8,7 +8,7 @@ Homepage: http://sierrasoftworks.com/AppLock
 
 Package: applock
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, qtquickcompat
 Description: Locks the device when an application is launched
  This application will automatically put the phone into a locked state whenever
  it detects that an application which is on the blacklist is launched.

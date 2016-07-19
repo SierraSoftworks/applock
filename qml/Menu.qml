@@ -7,18 +7,8 @@ Rectangle {
     id: menu
     width: mainWindow.width
     height: mainWindow.height - header.height + 7
-    color: "#00000000"
-    gradient: Gradient {
-	GradientStop {
-	    position: 0
-	    color: "#ffffff"
-	}
+    color: "transparent"
 
-	GradientStop {
-	    position: 1
-	    color: "#ffffff"
-	}
-    }
     x: 0
     y: 0 - height
 
@@ -114,7 +104,7 @@ Rectangle {
 		anchors.bottomMargin: 50
 		font.pixelSize: 20
 		color: "#fff"
-		text: "<b>Version:</b> 0.3.1"
+		text: "<b>Version:</b> 0.3.3"
 	    }
 
 	    Text {
